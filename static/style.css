@@ -125,6 +125,12 @@ button.icon:focus {
   text-transform: capitalize;
 }
 
+#error-message {
+  color: red;
+  font-size: 0.8rem;
+  margin-bottom: 1rem;
+}
+
 #birthday-section {
   padding: 0;
   max-width: 400px;

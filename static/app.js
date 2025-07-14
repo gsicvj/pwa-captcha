@@ -1,5 +1,7 @@
 let birthdays = null;
 
+const errorMessage = document.getElementById("error-message");
+
 const birthdaySection = document.getElementById("birthday-section");
 let birthdayList = null;
 
@@ -40,11 +42,11 @@ function createBirthdayElement(name, birthday) {
 
 function addBirthday(name, birthday) {
   if (!validateBirthday(birthday)) {
-    alert("Invalid birthday");
+    errorMessage.textContent = "Invalid birthday";
     return;
   }
   if (birthdays.some((birthday) => birthday.name === name)) {
-    alert("Birthday already exists");
+    errorMessage.textContent = "Birthday already exists";
     return;
   }
   if (birthdays.length === 0) {
