@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
-import { sendNotification, generateVAPIDKeys } from "web-push";
+import { sendNotification, generateVAPIDKeys, setVapidDetails } from "web-push";
 
 const app = new Hono();
 
@@ -10,10 +10,16 @@ if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
   );
   console.error(generateVAPIDKeys());
   process.exit(1);
+} else {
+  setVapidDetails(
+    "mailto:me@domenurh.com",
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
 }
 
 app.get("/manifest.json", serveStatic({ path: "./manifest.json" }));
-app.get("/sw.js", serveStatic({ path: "./static/sw.js" }));
+app.get("/sw.js", serveStatic({ path: "./sw.js" }));
 
 app.get(
   "/static/*",
@@ -33,21 +39,40 @@ app.get("/vapidPublicKey", (c) => {
 });
 
 app.post("/register", async (c) => {
-  const body = await c.req.json();
-  const subscription = body.subscription;
-  console.log(subscription);
   // A real world application would store the subscription info.
-  return c.status(201);
+  c.status(201);
+  return c.text("OK");
 });
 
-app.post("/sendNotification", async (c) => {
-  const body = await c.req.json();
-  const subscription = body.subscription;
-  const payload = body.payload || "Hello world";
+app
+  .post("/sendNotification", async (c) => {
+    console.log("Sending notification", c.req.json());
+    const body = await c.req.json();
+    const subscription = body.subscription;
+    const payload = body.payload || "Hello world";
 
-  await sendNotification(subscription, payload);
+    setTimeout(() => {
+      sendNotification(subscription, payload)
+        .then((res) => {
+          console.log("Notification sent", res);
+          c.status(201);
+          return c.text("OK");
+        })
+        .catch((err) => {
+          console.error("Error sending notification", err);
+          c.status(500);
+          return c.text("Error");
+        });
+    }, 1000);
 
-  return c.status(201);
-});
+    c.status(201);
+    return c.text("OK");
+  })
+  .options("/sendNotification", async (c) => {
+    c.header("Access-Control-Allow-Origin", "*");
+    c.header("Access-Control-Allow-Methods", "POST, OPTIONS");
+    c.header("Access-Control-Allow-Headers", "Content-Type");
+    return c.text("OK");
+  });
 
 export default app;

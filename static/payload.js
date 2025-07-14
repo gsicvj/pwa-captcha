@@ -60,5 +60,23 @@ navigator.serviceWorker.ready.then(function (registration) {
           subscription: subscription,
         }),
       });
+
+      document.getElementById("push-subscribe-button").onclick = () => {
+        console.log("Sending push notification (payload.js)");
+        fetch("/sendNotification", {
+          method: "post",
+          headers: {
+            "Content-type": "application/json",
+          },
+          body: JSON.stringify({
+            subscription,
+            expirationTime: Date.now() + 1000 * 60 * 60 * 24 * 30,
+            payload: {
+              title: "Hello world",
+              body: "This is a test notification",
+            },
+          }),
+        });
+      };
     });
 });
