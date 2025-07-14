@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Birthday Tracker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Birthday tracker</h1>
+    <form>
+      <fieldset>
+        <legend>Enter birthday details</legend>
+        <p>
+          <label for="name">Name</label>
+          <input type="text" id="name" required />
+        </p>
+        <p>
+          <label for="birthday">Birthday</label>
+          <input type="date" id="birthday" required />
+        </p>
+      </fieldset>
+      <p>
+        <button type="submit">Add Birthday</button>
+      </p>
+    </form>
+    <section id="birthday-section"></section>
+    <script src="app.js" defer></script>
+  </body>
+</html>
