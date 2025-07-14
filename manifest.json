@@ -1,0 +1,23 @@
+{
+  "name": "Birthday Tracker",
+  "short_name": "BT",
+  "description": "Track your friends' birthdays. Add, remove and view birthdays. No sign up required. Saving birthdays is done privately in your browser and not shared with anyone.",
+  "start_url": "/",
+  "theme_color": "#f5f5f5",
+  "background_color": "#f5f5f5",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/static/favicon.ico",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/static/icon-192x192.png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/icon-512x512.png",
+      "sizes": "512x512"
+    }
+  ]
+}
