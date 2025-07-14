@@ -3,6 +3,8 @@ import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 
+app.get("/manifest.json", serveStatic({ path: "./manifest.json" }));
+
 app.get(
   "/static/*",
   serveStatic({
