@@ -1,8 +1,16 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
-import { sendNotification } from "web-push";
+import { sendNotification, generateVAPIDKeys } from "web-push";
 
 const app = new Hono();
+
+if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+  console.error(
+    "You must set the VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY environment variables."
+  );
+  console.error(generateVAPIDKeys());
+  process.exit(1);
+}
 
 app.get("/manifest.json", serveStatic({ path: "./manifest.json" }));
 app.get("/sw.js", serveStatic({ path: "./static/sw.js" }));
@@ -21,10 +29,13 @@ app.get("/", async (c) => {
 });
 
 app.get("/vapidPublicKey", (c) => {
-  return c.text("PROBABLY_NOT_A_SECRET");
+  return c.text(process.env.VAPID_PUBLIC_KEY || "");
 });
 
 app.post("/register", async (c) => {
+  const body = await c.req.json();
+  const subscription = body.subscription;
+  console.log(subscription);
   // A real world application would store the subscription info.
   return c.status(201);
 });

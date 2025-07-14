@@ -26,5 +26,6 @@
       "protocol": "web+birthday",
       "url": "/?birthday=%s"
     }
-  ]
+  ],
+  "gcm_sender_id": "103953800507"
 }
