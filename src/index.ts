@@ -4,6 +4,7 @@ import { serveStatic } from "hono/bun";
 const app = new Hono();
 
 app.get("/manifest.json", serveStatic({ path: "./manifest.json" }));
+app.get("/sw.js", serveStatic({ path: "./static/sw.js" }));
 
 app.get(
   "/static/*",

@@ -30,5 +30,25 @@
     </form>
     <section id="birthday-section"></section>
     <script src="/static/app.js" defer></script>
+    <script>
+      // Does "serviceWorker" exist
+      if ("serviceWorker" in navigator) {
+        // Register the app's service worker
+        // Passing the filename where that worker is defined.
+        navigator.serviceWorker.register("/sw.js").then(
+          (registration) => {
+            console.log(
+              "Service worker registration successful:",
+              registration
+            );
+          },
+          (error) => {
+            console.error(`Service worker registration failed: ${error}`);
+          }
+        );
+      } else {
+        console.error("Service workers are not supported.");
+      }
+    </script>
   </body>
 </html>
