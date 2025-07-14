@@ -1,4 +1,5 @@
 {
+  "id": "/",
   "name": "Birthday Tracker",
   "short_name": "BT",
   "description": "Track your friends' birthdays. Add, remove and view birthdays. No sign up required. Saving birthdays is done privately in your browser and not shared with anyone.",
@@ -18,6 +19,12 @@
     {
       "src": "/static/icon-512x512.png",
       "sizes": "512x512"
+    }
+  ],
+  "protocol_handlers": [
+    {
+      "protocol": "web+birthday",
+      "url": "/?birthday=%s"
     }
   ]
 }
