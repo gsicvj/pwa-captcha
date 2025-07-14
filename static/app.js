@@ -1,4 +1,5 @@
 let birthdays = null;
+const STORAGE_KEY = "birthdays";
 
 const errorMessage = document.getElementById("error-message");
 
@@ -9,7 +10,7 @@ const form = document.querySelector("form");
 
 function getBirthdays() {
   if (birthdays === null) {
-    birthdays = JSON.parse(localStorage.getItem("birthdays")) || [];
+    birthdays = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   }
   return birthdays;
 }
@@ -54,7 +55,7 @@ function addBirthday(name, birthday) {
   }
 
   birthdays.push({ name, birthday });
-  localStorage.setItem("birthdays", JSON.stringify(birthdays));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(birthdays));
   const birthdayElement = createBirthdayElement(name, birthday);
   birthdayList.appendChild(birthdayElement);
 }
@@ -63,7 +64,7 @@ function removeBirthday(element) {
   const li = element.parentElement;
   const name = li.querySelector("span:first-child").textContent;
   birthdays = birthdays.filter((birthday) => birthday.name !== name);
-  localStorage.setItem("birthdays", JSON.stringify(birthdays));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(birthdays));
   li.remove();
 }
 
