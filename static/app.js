@@ -27,6 +27,9 @@ function createBirthdayElement(name, birthday) {
   button.textContent = "×";
   button.addEventListener("click", function () {
     removeBirthday(this);
+    if (birthdayList.children.length === 0) {
+      birthdayList.innerHTML = "<p>No birthdays to display</p>";
+    }
   });
   infoDiv.appendChild(nameSpan);
   infoDiv.appendChild(birthdaySpan);
@@ -43,6 +46,9 @@ function addBirthday(name, birthday) {
   if (birthdays.some((birthday) => birthday.name === name)) {
     alert("Birthday already exists");
     return;
+  }
+  if (birthdays.length === 0) {
+    birthdayList.innerHTML = "";
   }
 
   birthdays.push({ name, birthday });
@@ -69,6 +75,7 @@ function renderBirthdays(birthdays) {
     birthdayList.innerHTML = "<p>No birthdays to display</p>";
     return;
   }
+  birthdayList.innerHTML = "";
   const birthdaysFragment = document.createDocumentFragment();
   birthdays.forEach((birthday) => {
     birthdaysFragment.appendChild(

@@ -1,9 +1,19 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import { serveStatic } from "hono/bun";
 
-const app = new Hono()
+const app = new Hono();
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+app.get(
+  "/static/*",
+  serveStatic({
+    onNotFound: (path, c) => {
+      console.log(`${path} is not found, you access ${c.req.path}`);
+    },
+  })
+);
 
-export default app
+app.get("/", async (c) => {
+  return c.html(await Bun.file("static/index.html").text());
+});
+
+export default app;
