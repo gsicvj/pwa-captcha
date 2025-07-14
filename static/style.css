@@ -112,6 +112,12 @@ button.icon:focus {
   gap: 0.5rem;
   justify-content: space-between;
   width: 100%;
+  flex-wrap: wrap;
+
+  @media (max-width: 400px) {
+    flex-direction: column;
+    text-align: left;
+  }
 }
 
 .info > span:first-child {
