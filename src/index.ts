@@ -46,23 +46,20 @@ app.post("/register", async (c) => {
 
 app
   .post("/sendNotification", async (c) => {
-    const body = await c.req.json();
-    const subscription = body.subscription;
-    const payload = JSON.stringify(
-      body.payload || {
-        title: "Hello world",
-        body: "This is a test notification",
-      }
-    );
+    try {
+      console.log("Sending notification");
+      const body = await c.req.json();
+      const subscription = body.subscription;
+      const payload = JSON.stringify(body.data);
 
-    const isSent = await sendNotification(subscription, payload);
-    if (isSent) {
-      c.status(201);
-      return c.text("OK");
-    } else {
+      await sendNotification(subscription, payload);
+    } catch (error) {
+      console.error("Error sending notification:", error);
       c.status(500);
       return c.text("Error");
     }
+    c.status(201);
+    return c.text("OK");
   })
   .options("/sendNotification", async (c) => {
     c.header("Access-Control-Allow-Origin", "*");

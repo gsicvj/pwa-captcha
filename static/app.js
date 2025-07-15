@@ -133,7 +133,20 @@ function main() {
   });
 
   sendNotificationButton.addEventListener("click", async () => {
-    showNotification("Birthday Tracker", "A bell has been rung!");
+    // showNotification("Birthday Tracker", "A bell has been rung!");
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+
+    fetch("/sendNotification", {
+      method: "POST",
+      body: JSON.stringify({
+        subscription,
+        data: {
+          title: "Birthday Tracker via REST",
+          body: "A bell has been rung via REST!",
+        },
+      }),
+    });
   });
 }
 

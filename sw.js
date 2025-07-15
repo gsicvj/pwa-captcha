@@ -63,6 +63,10 @@ self.addEventListener("fetch", (event) => {
   // );
 });
 
-self.addEventListener("message", (event) => {
-  console.log("Message received", event);
+self.addEventListener("push", (event) => {
+  const data = event.data?.json();
+  self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: "/static/icon-192x192.png",
+  });
 });
