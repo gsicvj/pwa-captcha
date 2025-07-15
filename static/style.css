@@ -142,6 +142,48 @@ button.icon:focus {
   text-align: center;
 }
 
+#send-notification-button {
+  display: block;
+  padding: 0.8rem;
+  background-color: #fff;
+  border: 2px solid #e74c3c;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  color: #e74c3c;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#send-notification-button:hover {
+  background-color: #e74c3c;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+#send-notification-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3);
+}
+
+#send-notification-button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 400px;
+  padding: 0 2rem;
+  margin: 0 auto 2rem auto;
+}
+
 ul {
   list-style: none;
   padding: 0;

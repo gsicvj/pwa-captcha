@@ -133,7 +133,7 @@ function main() {
   });
 
   sendNotificationButton.addEventListener("click", async () => {
-    showNotification("Hi from app.js", "Hello world");
+    showNotification("Birthday Tracker", "A bell has been rung!");
   });
 }
 
