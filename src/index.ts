@@ -4,6 +4,15 @@ import { sendNotification, generateVAPIDKeys, setVapidDetails } from "web-push";
 
 const app = new Hono();
 
+type SavedSubscription = {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+};
+const subscriptions: Record<string, SavedSubscription> = {};
+
 if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
   console.error(
     "You must set the VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY environment variables."
@@ -34,13 +43,37 @@ app.get("/", async (c) => {
   return c.html(await Bun.file("static/index.html").text());
 });
 
+app.get("/everyone", async (c) => {
+  for (const subscription of Object.values(subscriptions)) {
+    await sendNotification(
+      subscription,
+      JSON.stringify({
+        title: "Hello world",
+        body: "This is a test notification",
+        icon: "/static/icon-192x192.png",
+      })
+    );
+  }
+  console.log("Sent notification to everyone");
+  c.status(200);
+  return c.text("OK");
+});
+
 app.get("/vapidPublicKey", (c) => {
   return c.text(process.env.VAPID_PUBLIC_KEY || "");
 });
 
 app.post("/register", async (c) => {
-  // A real world application would store the subscription info.
-  c.status(201);
+  const body = await c.req.json();
+  const subscription = body.subscription;
+  subscriptions[subscription.endpoint] = {
+    endpoint: subscription.endpoint,
+    keys: {
+      p256dh: subscription.keys.p256dh,
+      auth: subscription.keys.auth,
+    },
+  };
+  console.log("Registered subscription:", subscription);
   return c.text("OK");
 });
 
