@@ -55,9 +55,5 @@ async function getSubscription() {
   return newSubscription;
 }
 
-function main() {
-  registerServiceWorker();
-  getSubscription();
-}
-
-main();
+registerServiceWorker();
+getSubscription();
