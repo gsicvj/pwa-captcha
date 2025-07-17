@@ -1,10 +1,12 @@
 let birthdays = null;
+let installPrompt = null;
 const STORAGE_KEY = "birthdays";
 
 const errorMessage = document.getElementById("error-message");
 const sendNotificationButton = document.getElementById(
   "send-notification-button"
 );
+const installButton = document.getElementById("install");
 
 const birthdaySection = document.getElementById("birthday-section");
 let birthdayList = null;
@@ -151,3 +153,23 @@ function main() {
 }
 
 main();
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  installButton.removeAttribute("hidden");
+});
+
+installButton.addEventListener("click", async () => {
+  if (!installPrompt) {
+    return;
+  }
+  const result = await installPrompt.prompt();
+  if (result.outcome === "accepted") {
+    console.log("User accepted the A2HS prompt");
+  } else {
+    console.log("User dismissed the A2HS prompt");
+  }
+  installPrompt = null;
+  installButton.setAttribute("hidden", "");
+});
