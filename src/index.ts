@@ -1,8 +1,21 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { sendNotification, generateVAPIDKeys, setVapidDetails } from "web-push";
+import { createSecureServer } from "node:http2";
+import { readFileSync } from "node:fs";
 
-const app = new Hono();
+const sslCert = readFileSync("./localhost+3.pem", "utf8");
+const sslKey = readFileSync("./localhost+3-key.pem", "utf8");
+
+let app = new Hono();
+
+Bun.serve({
+  fetch: app.fetch,
+  tls: {
+    cert: sslCert,
+    key: sslKey,
+  },
+});
 
 type SavedSubscription = {
   endpoint: string;
