@@ -9,56 +9,55 @@ function urlBase64ToUint8Array(base64String) {
   return outputArray;
 }
 
-function getVapidPublicKey() {
-  return fetch("/vapidPublicKey").then((response) => response.text());
+async function getVapidPublicKey() {
+  const response = await fetch("/vapidPublicKey");
+  return response.text();
 }
 
 // Register the app's service worker
-navigator.serviceWorker.register("/sw.js").then(
-  (registration) => {
-    console.log("Service worker registration successful:", registration);
-    // Get the push subscription
-    registration.pushManager.getSubscription();
-  },
-  (error) => {
-    console.error(`Service worker registration failed: ${error}`);
-  }
-);
+async function registerServiceWorker() {
+  const registration = await navigator.serviceWorker.register("/sw.js");
+  const subscription = await registration.pushManager.getSubscription();
+  console.log("Service worker registration successful:", registration);
+  return subscription;
+}
 
-navigator.serviceWorker.ready.then(function (registration) {
+async function getSubscription() {
+  const registration = await navigator.serviceWorker.ready;
   // Use the PushManager to get the user's subscription to the push service.
-  return registration.pushManager
-    .getSubscription()
-    .then(async function (subscription) {
-      // If a subscription was found, return it.
-      if (subscription) {
-        return subscription;
-      }
+  const currentSubscription = await registration.pushManager.getSubscription();
 
-      // Get the server's public key
-      const response = await fetch("/vapidPublicKey");
-      const vapidPublicKey = await response.text();
-      // Chrome doesn't accept the base64-encoded (string) vapidPublicKey yet
-      // urlBase64ToUint8Array() is defined in /tools.js
-      const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+  if (currentSubscription) {
+    return currentSubscription;
+  }
 
-      // Otherwise, subscribe the user (userVisibleOnly allows to specify that we don't plan to
-      // send notifications that don't have a visible effect for the user).
-      return registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: convertedVapidKey,
-      });
-    })
-    .then(function (subscription) {
-      // Send the subscription details to the server using the Fetch API.
-      fetch("/register", {
-        method: "post",
-        headers: {
-          "Content-type": "application/json",
-        },
-        body: JSON.stringify({
-          subscription: subscription,
-        }),
-      });
-    });
-});
+  // Get the server's public key
+  const vapidPublicKey = await getVapidPublicKey();
+  // Chrome doesn't accept the base64-encoded (string) vapidPublicKey yet
+  const convertedVapidKey = urlBase64ToUint8Array(vapidPublicKey);
+
+  const newSubscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: convertedVapidKey,
+  });
+
+  // Send the subscription details to the server using the Fetch API.
+  fetch("/register", {
+    method: "post",
+    headers: {
+      "Content-type": "application/json",
+    },
+    body: JSON.stringify({
+      subscription: newSubscription,
+    }),
+  });
+
+  return newSubscription;
+}
+
+function main() {
+  registerServiceWorker();
+  getSubscription();
+}
+
+main();
