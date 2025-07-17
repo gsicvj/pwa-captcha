@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { sendNotification, generateVAPIDKeys, setVapidDetails } from "web-push";
-import { createSecureServer } from "node:http2";
 import { readFileSync } from "node:fs";
 
 const sslCert = readFileSync("./localhost+3.pem", "utf8");
