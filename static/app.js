@@ -1,166 +1,48 @@
-let birthdays = null;
 let installPrompt = null;
-const STORAGE_KEY = "birthdays";
 
-const errorMessage = document.getElementById("error-message");
-const sendNotificationButton = document.getElementById(
-  "send-notification-button"
-);
-const installButton = document.getElementById("install");
+const GRID_SIZE = 4 * 4;
 
-const birthdaySection = document.getElementById("birthday-section");
-let birthdayList = null;
+const continueButton = document.getElementById("continue-button");
+const installButton = document.getElementById("install-button");
+const randomizeButton = document.getElementById("randomize-button");
+const statusText = document.getElementById("status-text");
+const captcha = document.querySelector("#captcha > .captcha__solver");
 
-const form = document.querySelector("form");
+const correctCells = new Array(GRID_SIZE).fill(false);
 
-function getBirthdays() {
-  if (birthdays === null) {
-    birthdays = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
-  }
-  return birthdays;
-}
-
-function createBirthdayElement(name, birthday) {
-  const formattedBirthday = formatBirthday(birthday);
-  const li = document.createElement("li");
-  const infoDiv = document.createElement("div");
-  infoDiv.className = "info";
-  const nameSpan = document.createElement("span");
-  nameSpan.textContent = name;
-  const birthdaySpan = document.createElement("span");
-  birthdaySpan.textContent = formattedBirthday;
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "icon";
-  button.textContent = "×";
-  button.addEventListener("click", function () {
-    removeBirthday(this);
-    if (birthdayList.children.length === 0) {
-      birthdayList.innerHTML = "<p>No birthdays to display</p>";
-    }
+const isCaptchaValid = () => {
+  const captchaState = Array.from(captcha.querySelectorAll(".grid-cell"));
+  return captchaState.every((cell, index) => {
+    return cell.checked === correctCells[index];
   });
-  infoDiv.appendChild(nameSpan);
-  infoDiv.appendChild(birthdaySpan);
-  li.appendChild(infoDiv);
-  li.appendChild(button);
-  return li;
-}
+};
 
-function addBirthday(name, birthday) {
-  if (!validateBirthday(birthday)) {
-    errorMessage.textContent = "Invalid birthday";
-    return;
-  }
-  if (birthdays.some((birthday) => birthday.name === name)) {
-    errorMessage.textContent = "Birthday already exists";
-    return;
-  }
-  if (birthdays.length === 0) {
-    birthdayList.innerHTML = "";
-  }
+const sendNotification = async () => {
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.getSubscription();
+  const captchaMessage = `Solved ${
+    isCaptchaValid() ? "correctly!" : "incorrectly :("
+  }`;
 
-  birthdays.push({ name, birthday });
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(birthdays));
-  const birthdayElement = createBirthdayElement(name, birthday);
-  birthdayList.appendChild(birthdayElement);
-}
-
-function removeBirthday(element) {
-  const li = element.parentElement;
-  const name = li.querySelector("span:first-child").textContent;
-  birthdays = birthdays.filter((birthday) => birthday.name !== name);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(birthdays));
-  li.remove();
-  showNotification(
-    "Birthday removed",
-    `${name} has been removed from the list`
-  );
-}
-
-function renderBirthdays(birthdays) {
-  if (!birthdayList) {
-    birthdayList = document.createElement("ul");
-    birthdayList.className = "birthday-list";
-    birthdaySection.appendChild(birthdayList);
-  }
-  if (birthdays.length === 0) {
-    birthdayList.innerHTML = "<p>No birthdays to display</p>";
-    return;
-  }
-  birthdayList.innerHTML = "";
-  const birthdaysFragment = document.createDocumentFragment();
-  birthdays.forEach((birthday) => {
-    birthdaysFragment.appendChild(
-      createBirthdayElement(birthday.name, birthday.birthday)
-    );
+  fetch("/sendNotification", {
+    method: "POST",
+    body: JSON.stringify({
+      subscription,
+      data: {
+        title: "PWA Captcha",
+        body: captchaMessage,
+      },
+    }),
   });
-  birthdayList.appendChild(birthdaysFragment);
-}
+};
 
-function validateBirthday(birthday) {
-  const date = new Date(birthday);
-  const today = new Date();
-  return !isNaN(date.getTime()) && date <= today;
-}
-
-function formatBirthday(birthday) {
-  const date = new Date(birthday);
-  const options = { day: "numeric", month: "long", year: "numeric" };
-  return date.toLocaleDateString("en-US", options);
-}
-
-function showNotification(title, body) {
-  Notification.requestPermission().then((result) => {
-    if (result === "granted") {
-      new Notification(title, {
-        body,
-      });
-    }
-  });
-}
-
-function main() {
-  const data = getBirthdays();
-  renderBirthdays(data);
-
-  // Add event listener to form
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const name = document.getElementById("name").value;
-    const birthday = document.getElementById("birthday").value;
-    addBirthday(name, birthday);
-    form.reset();
-    errorMessage.textContent = "";
-    showNotification("Birthday added", `${name} has a birthday on ${birthday}`);
-  });
-
-  sendNotificationButton.addEventListener("click", async () => {
-    // showNotification("Birthday Tracker", "A bell has been rung!");
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.getSubscription();
-
-    fetch("/sendNotification", {
-      method: "POST",
-      body: JSON.stringify({
-        subscription,
-        data: {
-          title: "Birthday Tracker via REST",
-          body: "A bell has been rung via REST!",
-        },
-      }),
-    });
-  });
-}
-
-main();
-
-window.addEventListener("beforeinstallprompt", (event) => {
+const beforeInstallHandler = (event) => {
   event.preventDefault();
   installPrompt = event;
   installButton.removeAttribute("hidden");
-});
+};
 
-installButton.addEventListener("click", async () => {
+const installHandler = async () => {
   if (!installPrompt) {
     return;
   }
@@ -172,4 +54,35 @@ installButton.addEventListener("click", async () => {
   }
   installPrompt = null;
   installButton.setAttribute("hidden", "");
-});
+};
+
+const generateRandomCaptcha = () => {
+  let maxTruthy = 4;
+  captcha.innerHTML = "";
+  const captchaFragment = document.createDocumentFragment();
+  for (let i = 0; i < GRID_SIZE; i++) {
+    const inputCell = document.createElement("input");
+    inputCell.setAttribute("type", "checkbox");
+    if (Math.random() >= 0.5 && --maxTruthy >= 0) {
+      correctCells[i] = true;
+    } else {
+      correctCells[i] = false;
+    }
+    inputCell.className = `grid-cell grid-cell-${i}`;
+    captchaFragment.appendChild(inputCell);
+  }
+  captcha.appendChild(captchaFragment);
+  const correctText = correctCells
+    .map((c, i) => (c ? i + 1 : false))
+    .filter(Boolean)
+    .join();
+  statusText.innerText = `Captcha solution is [${correctText}]`;
+};
+
+window.addEventListener("beforeinstallprompt", beforeInstallHandler);
+
+continueButton.addEventListener("click", sendNotification);
+installButton.addEventListener("click", installHandler);
+randomizeButton.addEventListener("click", generateRandomCaptcha);
+
+statusText.innerText = "No captchas currently available.";
