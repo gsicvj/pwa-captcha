@@ -1,17 +1,17 @@
-## TODO
+# PWA Captcha App
 
-- [ ] Fix installation prompt. Mobile devices can't install the app. Self Signed TLS isn't secure.
+Push notifications for agentic workflows on blocking captcha steps.
 
-To install dependencies:
+[![license](https://img.shields.io/badge/license-[MIT]-blue.svg)](LICENSE)
 
-```sh
-bun install
-```
+## TODO / Roadmap
 
-To run:
+Here's a look at what's planned for the future.
 
-```sh
-bun run dev
-```
+- [ ] Fix installation prompt. Mobile devices can't install the app. Self Signed TLS isn't secure. Dockerize and deploy. Try again.
+- [ ] Properly handle sessions and subscriptions
+- [ ] Implement captcha UI or maybe just click navigate to captcha
 
-open http://localhost:3000
+## License
+
+This project is licensed under the [MIT License](LICENSE).
