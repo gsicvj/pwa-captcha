@@ -1,7 +1,12 @@
 {
   "name": "pwa-captcha",
+  "type": "module",
+  "main": "out/index.js",
+  "target": "node",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --outfile ./out/index.js --target bun",
+    "start": "bun run out/index.js"
   },
   "dependencies": {
     "hono": "^4.8.5",
