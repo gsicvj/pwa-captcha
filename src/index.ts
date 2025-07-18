@@ -1,10 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from "hono/bun";
 import { sendNotification, generateVAPIDKeys, setVapidDetails } from "web-push";
-import { readFileSync } from "node:fs";
-
-const sslCert = readFileSync("./localhost+3.pem", "utf8");
-const sslKey = readFileSync("./localhost+3-key.pem", "utf8");
 
 let app = new Hono();
 
@@ -15,6 +11,7 @@ type SavedSubscription = {
     auth: string;
   };
 };
+
 const subscriptions: Record<string, SavedSubscription> = {};
 
 if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
@@ -25,7 +22,7 @@ if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
   process.exit(1);
 } else {
   setVapidDetails(
-    "mailto:me@domenurh.com",
+    `mailto:${process.env.VAPID_EMAIL}`,
     process.env.VAPID_PUBLIC_KEY,
     process.env.VAPID_PRIVATE_KEY
   );
@@ -105,11 +102,4 @@ app
     return c.text("OK");
   });
 
-export default {
-  port: 3000,
-  fetch: app.fetch,
-  tls: {
-    cert: sslCert,
-    key: sslKey,
-  },
-};
+export default app;
