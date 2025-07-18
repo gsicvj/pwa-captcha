@@ -8,14 +8,6 @@ const sslKey = readFileSync("./localhost+3-key.pem", "utf8");
 
 let app = new Hono();
 
-Bun.serve({
-  fetch: app.fetch,
-  tls: {
-    cert: sslCert,
-    key: sslKey,
-  },
-});
-
 type SavedSubscription = {
   endpoint: string;
   keys: {
@@ -113,4 +105,11 @@ app
     return c.text("OK");
   });
 
-export default app;
+export default {
+  port: 3000,
+  fetch: app.fetch,
+  tls: {
+    cert: sslCert,
+    key: sslKey,
+  },
+};
