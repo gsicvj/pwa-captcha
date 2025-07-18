@@ -4,7 +4,7 @@ services:
       context: .
       platforms:
         - linux/amd64
-    image: ghcr.io/${GITHUB_USERNAME}/${GITHUB_REPO}:latest
+    image: ghcr.io/${GITHUB_USERNAME}/${GITHUB_REPO}:${IMAGE_TAG:-latest}
     ports:
       - 3000:3000
     environment:
